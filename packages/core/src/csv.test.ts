@@ -426,6 +426,25 @@ describe('parseFlightsCsv properties', () => {
     expect(resolveCsvPropertyHeader('pic name')).toBe('pic_name');
     expect(resolveCsvPropertyHeader('Night Vision Time (Goggles)')).toBe('nvg_time');
     expect(resolveCsvPropertyHeader('NVG')).toBe('nvg_time');
+
+    const expected: Record<string, string[]> = {
+      flight_number: ['Flight Number', 'Flight', 'flightNo', 'Flight No.', 'FLIGHTNUMBER', 'Flight #', 'flight_number'],
+      ground_instruction_received: ['Ground Instruction Received', 'Ground Instruction Duration', 'GroundTraining'],
+      tach_start: ['Tachometer Start', 'Tach Out', 'TachStart'],
+      tach_end: ['Tachometer End', 'Tach In', 'TachEnd'],
+      passenger_count: ['Number of Passengers', 'PAX'],
+    };
+    for (const [id, headers] of Object.entries(expected)) {
+      for (const header of headers) {
+        expect(resolveCsvPropertyHeader(header), header).toBe(id);
+        expect(resolveCsvPropertyHeader(` ${header.toUpperCase()} `), header).toBe(id);
+      }
+    }
+  });
+
+  it('keeps Tach Out as start and Tach In as end', () => {
+    expect(resolveCsvPropertyHeader('Tach Out')).toBe('tach_start');
+    expect(resolveCsvPropertyHeader('Tach In')).toBe('tach_end');
   });
 
   it('reads property columns by variant header', () => {
@@ -437,6 +456,19 @@ describe('parseFlightsCsv properties', () => {
       { propertyId: 'flight_number', value: 'AA1' },
       { propertyId: 'pic_name', value: 'Jane Doe' },
       { propertyId: 'nvg_time', value: '0.5' },
+    ]);
+  });
+
+  it('reads MyFlightbook-style property headers', () => {
+    const csv = `${BASE},Number of Passengers,Tachometer Start,Tachometer End,Flight #\n${ROW},2,1234.5,1236.1,AA100`;
+    const { rows, errors, ignoredColumns } = parseFlightsCsv(csv);
+    expect(errors).toEqual([]);
+    expect(ignoredColumns).toEqual([]);
+    expect(rows[0]!.values.properties).toEqual([
+      { propertyId: 'flight_number', value: 'AA100' },
+      { propertyId: 'passenger_count', value: '2' },
+      { propertyId: 'tach_start', value: '1234.5' },
+      { propertyId: 'tach_end', value: '1236.1' },
     ]);
   });
 

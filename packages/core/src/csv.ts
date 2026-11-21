@@ -87,7 +87,9 @@ export const CSV_COLUMN_HEADERS: Record<CsvColumnKey, string> = Object.fromEntri
  * `CustomPropertyType.Title` plus the aliases listed against that title.
  *
  * Only add an entry once the spelling is confirmed against MyFlightbook's
- * importer code or a real MyFlightbook export — don't guess. Keyed by
+ * importer code or a real MyFlightbook export — don't guess. Spellings so
+ * far come from the importer source only; none has been checked against a
+ * real MyFlightbook export. Keyed by
  * `FlightPropertyType.id`.
  */
 const MYFLIGHTBOOK_PROPERTY_HEADER_ALIASES: Readonly<Record<string, ReadonlyArray<string>>> = {
@@ -96,6 +98,19 @@ const MYFLIGHTBOOK_PROPERTY_HEADER_ALIASES: Readonly<Record<string, ReadonlyArra
   pic_name: ['Name of PIC', 'pic_name', 'Captain'],
   // MyFlightbook's title is "Night Vision Time (Goggles)".
   nvg_time: ['Night Vision Time (Goggles)', 'NVG'],
+  // MyFlightbook's title ("Flight Number") matches ours, so it is already
+  // the first accepted header; only the extra aliases are listed.
+  flight_number: ['Flight', 'flightNo', 'Flight No.', 'FLIGHTNUMBER', 'Flight #', 'flight_number'],
+  // Title matches ours ("Ground Instruction Received").
+  ground_instruction_received: ['Ground Instruction Duration', 'GroundTraining'],
+  // MyFlightbook's titles are "Tachometer Start"/"Tachometer End"; "Tach Out"
+  // is the start and "Tach In" the end there.
+  tach_start: ['Tachometer Start', 'Tach Out', 'TachStart'],
+  tach_end: ['Tachometer End', 'Tach In', 'TachEnd'],
+  // MyFlightbook's title is "Number of Passengers". Inferred to be the same
+  // property as ours (an integer passenger count); nothing in the importer
+  // source proves it.
+  passenger_count: ['Number of Passengers', 'PAX'],
 };
 
 /**
